@@ -13,13 +13,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Extract version without 'v'
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $env:GITHUB_ENV
+  
       - name: Create NuGet package
-        run: nuget pack src/VersioningPackage.nuspec \
-          -OutputDirectory out \
-          -Version "${{ github.ref_name }}"
+        run: nuget pack src/VersioningPackage.nuspec -OutputDirectory out -Version "${{ env.VERSION }}"
 
       - name: Push to NuGet
-        run: nuget push "out/*.nupkg" \
-          -api-key ${{ secrets.NUGET_API_KEY }} \
-          -source https://api.nuget.org/v3/index.json \
-          -skip-duplicate
+        run: nuget push "out/*.nupkg" -api-key ${{ secrets.NUGET_API_KEY }} -source https://api.nuget.org/v3/index.json -skip-duplicate
