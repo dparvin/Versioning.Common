@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Versioning.Common</id>
+    <version>1.0.0</version> <!-- You can override this from the CLI -->
+    <authors>YourName</authors>
+    <owners>YourName</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Centralized versioning logic for MSBuild-based projects.</description>
+    <tags>msbuild versioning build props targets</tags>
+    <packageTypes>
+      <packageType name="MSBuild" />
+    </packageTypes>
+  </metadata>
+
+  <files>
+    <file src="build\Versioning.Common.props" target="build\Versioning.Common.props" />
+    <file src="build\Versioning.Common.targets" target="build\Versioning.Common.targets" />
+  </files>
+</package>
