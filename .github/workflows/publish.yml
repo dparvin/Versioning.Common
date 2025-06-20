@@ -7,14 +7,11 @@ on:
 
 jobs:
   pack-and-publish:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1
 
       - name: Create NuGet package
         run: nuget pack src/VersioningPackage.nuspec \
@@ -22,9 +19,6 @@ jobs:
           -Version "${{ github.ref_name }}"
 
       - name: Push to NuGet
-        uses: nuget/setup-nuget@v1  # Optional, only needed if you want native NuGet CLI
-
-      - name: Push package
         run: nuget push "out/*.nupkg" \
           -api-key ${{ secrets.NUGET_API_KEY }} \
           -source https://api.nuget.org/v3/index.json \
