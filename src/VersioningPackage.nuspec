@@ -3,10 +3,18 @@
   <metadata>
     <id>Versioning.Common</id>
     <version>1.0.0</version> <!-- You can override this from the CLI -->
-    <authors>YourName</authors>
-    <owners>YourName</owners>
+    <title>Versioning.Common</title>
+    <authors>David Parvin</authors>
+    <owners>David Parvin</owners>
+    <readme>readme.md</readme>
+    <language>en-US</language>
+    <copyright>Copyright © 2025 by David Parvin</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Centralized versioning logic for MSBuild-based projects.</description>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/dparvin/Versioning.Common</projectUrl>
+    <description>
+      Centralized versioning logic for MSBuild-based projects.
+    </description>
     <tags>msbuild versioning build props targets</tags>
     <packageTypes>
       <packageType name="MSBuild" />
@@ -14,7 +22,9 @@
   </metadata>
 
   <files>
-    <file src="build\Versioning.Common.props" target="build\Versioning.Common.props" />
-    <file src="build\Versioning.Common.targets" target="build\Versioning.Common.targets" />
+    <file src="build\*.props" target="build\Versioning.Common\" />
+    <file src="build\*.targets" target="build\Versioning.Common\" />
+    <file src="readme.md" target="" />
+    <file src="..\LICENSE" target="" />
   </files>
 </package>
