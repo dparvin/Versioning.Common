@@ -13,25 +13,19 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
 
-      - name: Restore tools (if needed)
-        run: dotnet restore
-
-      - name: Pack NuGet package
-        run: |
-          dotnet pack src/Versioning.Common/Versioning.Common.csproj \
-            --configuration Release \
-            --output ./nupkgs \
-            /p:Version=${{ github.ref_name }}
+      - name: Create NuGet package
+        run: nuget pack src/VersioningPackage.nuspec \
+          -OutputDirectory out \
+          -Version "${{ github.ref_name }}"
 
       - name: Push to NuGet
         uses: nuget/setup-nuget@v1  # Optional, only needed if you want native NuGet CLI
+
       - name: Push package
-        run: dotnet nuget push "./nupkgs/*.nupkg" \
-          --api-key ${{ secrets.NUGET_API_KEY }} \
-          --source https://api.nuget.org/v3/index.json \
-          --skip-duplicate
+        run: nuget push "out/*.nupkg" \
+          -api-key ${{ secrets.NUGET_API_KEY }} \
+          -source https://api.nuget.org/v3/index.json \
+          -skip-duplicate
