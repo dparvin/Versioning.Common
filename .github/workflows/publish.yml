@@ -1,0 +1,37 @@
+name: Publish Versioning.Common to NuGet
+
+on:
+  push:
+    tags:
+      - 'v*'  # Example: v1.0.0 or v1.0.0-beta1
+
+jobs:
+  pack-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Restore tools (if needed)
+        run: dotnet restore
+
+      - name: Pack NuGet package
+        run: |
+          dotnet pack src/Versioning.Common/Versioning.Common.csproj \
+            --configuration Release \
+            --output ./nupkgs \
+            /p:Version=${{ github.ref_name }}
+
+      - name: Push to NuGet
+        uses: nuget/setup-nuget@v1  # Optional, only needed if you want native NuGet CLI
+      - name: Push package
+        run: dotnet nuget push "./nupkgs/*.nupkg" \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
