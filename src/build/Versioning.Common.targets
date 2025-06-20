@@ -8,8 +8,8 @@
   <Target Name="LogSelectedVersion" AfterTargets="PrepareForBuild" Condition="'$(LogVersionInfo)' == 'true'">
     <Message Importance="High" Text="================== Versioning Info ==================" />
     <Message Importance="High" Text="  ➤ BaseVersion: $(BaseVersion)" />
-    <Message Importance="High" Text="  ➤ BuildMetadata: $(BuildMetadata)" />
-    <Message Importance="High" Text="  ➤ BuildIdentifier: $(BuildIdentifier)" />
+    <Message Condition="'$(BuildMetadata)' != ''" Importance="High" Text="  ➤ BuildMetadata: $(BuildMetadata)" />
+    <Message Condition="'$(BuildIdentifier)' != ''" Importance="High" Text="  ➤ BuildIdentifier: $(BuildIdentifier)" />
     <Message Importance="High" Text="  ➤ AssemblyVersion: $(AssemblyVersion)" />
     <Message Importance="High" Text="  ➤ FileVersion: $(FileVersion)" />
     <Message Importance="High" Text="  ➤ Version (NuGet): $(Version)" />

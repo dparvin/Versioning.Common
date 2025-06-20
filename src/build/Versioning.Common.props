@@ -12,7 +12,7 @@
 
   <!-- Allow BuildIdentifier to be overridden by CI -->
   <PropertyGroup Condition="'$(BuildIdentifier)' == ''">
-    <BuildIdentifier>local</BuildIdentifier>
+    <BuildIdentifier></BuildIdentifier>
   </PropertyGroup>
 
   <!-- Assembly/File version = fixed numeric version -->
@@ -24,12 +24,14 @@
   <!-- NuGet version (semver + metadata) -->
   <PropertyGroup Condition="'$(BuildMetadata)' != ''">
     <Version>$(BaseVersion)-$(BuildMetadata)</Version>
-    <InformationalVersion>$(BaseVersion)-$(BuildMetadata)+$(BuildIdentifier)</InformationalVersion>
+    <InformationalVersion Condition="'$(BuildIdentifier)' != ''">$(BaseVersion)-$(BuildMetadata)+$(BuildIdentifier)</InformationalVersion>
+    <InformationalVersion Condition="'$(BuildIdentifier)' == ''">$(BaseVersion)-$(BuildMetadata)</InformationalVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(BuildMetadata)' == ''">
-    <Version>$(BaseVersion)</Version>
-    <InformationalVersion>$(BaseVersion)+$(BuildIdentifier)</InformationalVersion>  
+    <Version>$(BaseVersion).0</Version>
+    <InformationalVersion Condition="'$(BuildIdentifier)' != ''">$(BaseVersion)+$(BuildIdentifier)</InformationalVersion>
+    <InformationalVersion Condition="'$(BuildIdentifier)' == ''">$(BaseVersion).0</InformationalVersion>
   </PropertyGroup>
 
 </Project>

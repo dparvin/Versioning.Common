@@ -82,13 +82,15 @@ If you are setting versions in your AssemblyInfo file, then you will want to rem
 ### 💡 Example Build Output
 
 ```text
-📦 Versioning Info:
+================== Versioning Info ==================
   ➤ BaseVersion: 2.0.0
   ➤ BuildMetadata: beta1
+  ➤ BuildIdentifier: build.20250614.shaabc123
   ➤ AssemblyVersion: 2.0.0.0
   ➤ FileVersion: 2.0.0.0
   ➤ Version (NuGet): 2.0.0-beta1
-  ➤ InformationalVersion: 2.0.0-beta1
+  ➤ InformationalVersion: 2.0.0-beta1+build.20250614.shaabc123
+=====================================================
 ```
 
 ### ✅ Compatibility
