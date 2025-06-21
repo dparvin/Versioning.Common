@@ -13,6 +13,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: List all checked-out files and folders
+        run: |
+          echo "🗂 Listing contents of workspace directory:"
+          dir /s /b
+
       - name: Extract version without 'v'
         shell: pwsh
         run: |
