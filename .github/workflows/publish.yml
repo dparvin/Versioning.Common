@@ -14,9 +14,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: List all checked-out files and folders
+        shell: pwsh
         run: |
-          echo "🗂 Listing contents of workspace directory:"
-          dir /s /b
+          Write-Host "🗂 Listing contents of workspace directory:"
+          Get-ChildItem -Recurse -Force
 
       - name: Extract version without 'v'
         shell: pwsh
