@@ -25,8 +25,12 @@ jobs:
           $version = $env:GITHUB_REF_NAME -replace '^v', ''
           "VERSION=$version" >> $env:GITHUB_ENV
 
+          - name: Create out directory
+            run: mkdir -p out
+
       - name: Create NuGet package
-        run: nuget pack src/VersioningPackage.nuspec -OutputDirectory out -Version "${{ env.VERSION }}"
+        working-directory: ./src
+        run: nuget pack src/VersioningPackage.nuspec -OutputDirectory ../out -Version "${{ env.VERSION }}"
 
       - name: Push to NuGet
         run: nuget push "out/*.nupkg" -api-key ${{ secrets.NUGET_API_KEY }} -source https://api.nuget.org/v3/index.json -skip-duplicate
