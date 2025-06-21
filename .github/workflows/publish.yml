@@ -29,7 +29,7 @@ jobs:
         run: mkdir -p out
 
       - name: Nuget Version
-        run: nuget -version
+        run: nuget.exe
 
       - name: Create NuGet package
         working-directory: ./src
