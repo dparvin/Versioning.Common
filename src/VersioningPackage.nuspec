@@ -22,9 +22,9 @@
   </metadata>
 
   <files>
-    <file src="build\*.props" target="build\Versioning.Common\" />
-    <file src="build\*.targets" target="build\Versioning.Common\" />
-    <file src="readme.md" target="" />
-    <file src="..\LICENSE" target="" />
+    <file src="src\build\*.props" target="build\Versioning.Common\" />
+    <file src="src\build\*.targets" target="build\Versioning.Common\" />
+    <file src="src\readme.md" target="" />
+    <file src="LICENSE" target="" />
   </files>
 </package>
