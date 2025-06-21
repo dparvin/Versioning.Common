@@ -13,11 +13,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: List all checked-out files and folders
-        shell: pwsh
-        run: |
-          Write-Host "🗂 Listing contents of workspace directory:"
-          Get-ChildItem -Recurse -Force
+#      - name: List all checked-out files and folders
+#        shell: pwsh
+#        run: |
+#          Write-Host "🗂 Listing contents of workspace directory:"
+#          Get-ChildItem -Recurse -Force
 
       - name: Extract version without 'v'
         shell: pwsh
@@ -28,8 +28,8 @@ jobs:
       - name: Create out directory
         run: mkdir -p out
 
-      - name: Nuget Version
-        run: nuget.exe
+#      - name: Nuget Version
+#        run: nuget.exe
 
       - name: Create NuGet package
         working-directory: ./src

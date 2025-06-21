@@ -25,6 +25,6 @@
     <file src="build\*.props" target="build\Versioning.Common\" />
     <file src="build\*.targets" target="build\Versioning.Common\" />
     <file src="readme.md" target="" />
-    <file src="LICENSE" target="" />
+    <file src="..\LICENSE" target="LICENSE." />
   </files>
 </package>
