@@ -22,8 +22,8 @@
   </metadata>
 
   <files>
-    <file src=".\build\Versioning.Common.props" target="build\Versioning.Common\Versioning.Common.props" />
-    <file src=".\build\Versioning.Common.targets" target="build\Versioning.Common\Versioning.Common.targets" />
+    <file src=".\build\Versioning.Common.props" target="build\Versioning.Common.props" />
+    <file src=".\build\Versioning.Common.targets" target="build\Versioning.Common.targets" />
     <file src=".\readme.md" target="readme.md" />
     <file src="..\LICENSE" target="LICENSE." />
   </files>
