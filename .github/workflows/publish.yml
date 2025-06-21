@@ -30,7 +30,7 @@ jobs:
 
       - name: Create NuGet package
         working-directory: ./src
-        run: nuget pack src/VersioningPackage.nuspec -OutputDirectory ../out -Version "${{ env.VERSION }}" -Verbosity diagnostic
+        run: nuget pack -Verbosity diagnostic VersioningPackage.nuspec -OutputDirectory ../out -Version "${{ env.VERSION }}"
 
       - name: Push to NuGet
         run: nuget push "out/*.nupkg" -api-key ${{ secrets.NUGET_API_KEY }} -source https://api.nuget.org/v3/index.json -skip-duplicate -Verbosity diagnostic
