@@ -29,11 +29,26 @@ jobs:
         working-directory: ./src
         run: nuget pack VersioningPackage.nuspec -OutputDirectory ../out -Version "${{ env.VERSION }}"
         
-      - name: List all checked-out files and folders
-        shell: pwsh
-        run: |
-          Write-Host "🗂 Listing contents of workspace directory:"
-          Get-ChildItem -Recurse -Force
+#      - name: List all checked-out files and folders
+#        shell: pwsh
+#        run: |
+#          Write-Host "🗂 Listing contents of workspace directory:"
+#          Get-ChildItem -Recurse -Force
 
       - name: Push to NuGet
-        run: nuget push "./out/*.nupkg" -ApiKey ${{ secrets.NUGET_API_KEY }} -Source https://api.nuget.org/v3/index.json -SkipDuplicate -Verbosity Detailed
+        shell: pwsh
+        run: |
+          $packages = Get-ChildItem -Path ./out/*.nupkg
+          if (-not $packages) {
+            Write-Error "❌ No .nupkg files found in ./out"
+            exit 1
+          }
+
+          foreach ($pkg in $packages) {
+            Write-Host "📦 Pushing $($pkg.Name)..."
+            nuget push $pkg.FullName `
+              -ApiKey "${{ secrets.NUGET_API_KEY }}" `
+              -Source https://api.nuget.org/v3/index.json `
+              -SkipDuplicate `
+              -Verbosity detailed
+          }
