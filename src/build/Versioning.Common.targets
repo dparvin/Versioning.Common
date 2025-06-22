@@ -52,7 +52,14 @@
     <Message Importance="High" Text="=====================================================" />
   </Target>
 
-  <Target Name="GenerateAssemblyInfo" AfterTargets="LogSelectedVersion" BeforeTargets="BeforeCompile">
+  <PropertyGroup>
+    <CoreCompileDependsOn>
+      GenerateAssemblyInfo;
+      $(CoreCompileDependsOn)
+    </CoreCompileDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GenerateAssemblyInfo">
     <PropertyGroup>
       <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'C#'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.cs</_GeneratedAssemblyInfoFile>
       <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'VB'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.vb</_GeneratedAssemblyInfoFile>
