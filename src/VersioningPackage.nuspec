@@ -16,9 +16,6 @@
       Centralized versioning logic for MSBuild-based projects.
     </description>
     <tags>msbuild versioning build props targets</tags>
-    <packageTypes>
-      <packageType name="MSBuild" />
-    </packageTypes>
   </metadata>
 
   <files>
