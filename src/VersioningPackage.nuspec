@@ -15,7 +15,7 @@
     <description>
       Centralized versioning logic for MSBuild-based projects.
     </description>
-    <tags>msbuild versioning build props targets</tags>
+    <tags>msbuild versioning build targets</tags>
   </metadata>
 
   <files>
