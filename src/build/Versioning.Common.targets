@@ -1,5 +1,39 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <!-- Ensure BaseVersion is set -->
+  <PropertyGroup Condition="'$(BaseVersion)' == ''">
+    <BaseVersion>0.1.0</BaseVersion> <!-- Fallback default -->
+  </PropertyGroup>
+  
+  <!-- Set BuildMetadata if not already defined -->
+  <PropertyGroup Condition="'$(BuildMetadata)' == ''">
+    <BuildMetadata></BuildMetadata>
+  </PropertyGroup>
+  
+  <!-- Set BuildIdentifier if not already defined -->
+  <PropertyGroup Condition="'$(BuildIdentifier)' == ''">
+    <BuildIdentifier></BuildIdentifier>
+  </PropertyGroup>
+  
+  <!-- Assembly and File version = fixed numeric version -->
+  <PropertyGroup>
+    <AssemblyVersion>$(BaseVersion).0</AssemblyVersion>
+    <FileVersion>$(BaseVersion).0</FileVersion>
+  </PropertyGroup>
+  
+  <!-- NuGet version (semver + metadata) -->
+  <PropertyGroup Condition="'$(BuildMetadata)' != ''">
+    <Version>$(BaseVersion)-$(BuildMetadata)</Version>
+    <InformationalVersion Condition="'$(BuildIdentifier)' != ''">$(BaseVersion)-$(BuildMetadata)+$(BuildIdentifier)</InformationalVersion>
+    <InformationalVersion Condition="'$(BuildIdentifier)' == ''">$(BaseVersion)-$(BuildMetadata)</InformationalVersion>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(BuildMetadata)' == ''">
+    <Version>$(BaseVersion).0</Version>
+    <InformationalVersion Condition="'$(BuildIdentifier)' != ''">$(BaseVersion)+$(BuildIdentifier)</InformationalVersion>
+    <InformationalVersion Condition="'$(BuildIdentifier)' == ''">$(BaseVersion).0</InformationalVersion>
+  </PropertyGroup>
+
   <PropertyGroup>
     <LogVersionInfo Condition="'$(LogVersionInfo)' == ''">true</LogVersionInfo>
   </PropertyGroup>
@@ -15,6 +49,47 @@
     <Message Importance="High" Text="  ➤ Version (NuGet): $(Version)" />
     <Message Importance="High" Text="  ➤ InformationalVersion: $(InformationalVersion)" />
     <Message Importance="High" Text="=====================================================" />
+  </Target>
+
+  <Target Name="GenerateAssemblyInfo" AfterTargets="LogSelectedVersion" BeforeTargets="BeforeCompile">
+    <PropertyGroup>
+      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'C#'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.cs</_GeneratedAssemblyInfoFile>
+      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'VB'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.vb</_GeneratedAssemblyInfoFile>
+      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'F#'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.fs</_GeneratedAssemblyInfoFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="$(_GeneratedAssemblyInfoFile)" />
+    </ItemGroup>
+
+    <!-- C# Lines -->
+    <ItemGroup Condition="'$(Language)' == 'C#'">
+      <_AssemblyInfoLines Include="using System.Reflection;" />
+      <_AssemblyInfoLines Include="[assembly: AssemblyVersion(&quot;$(AssemblyVersion)&quot;)]" />
+      <_AssemblyInfoLines Include="[assembly: AssemblyFileVersion(&quot;$(FileVersion)&quot;)]" />
+      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" Include="[assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)]" />
+    </ItemGroup>
+
+    <!-- VB.NET Lines -->
+    <ItemGroup Condition="'$(Language)' == 'VB'">
+      <_AssemblyInfoLines Include="Imports System.Reflection" />
+      <_AssemblyInfoLines Include="&lt;Assembly: AssemblyVersion(&quot;$(AssemblyVersion)&quot;)&gt;" />
+      <_AssemblyInfoLines Include="&lt;Assembly: AssemblyFileVersion(&quot;$(FileVersion)&quot;)&gt;" />
+      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" Include="&lt;Assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)&gt;" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(Language)' == 'F#'">
+      <_AssemblyInfoLines Include="open System.Reflection" />
+      <_AssemblyInfoLines Include="[&lt;assembly: AssemblyVersion(&quot;$(AssemblyVersion)&quot;)&gt;]" />
+      <_AssemblyInfoLines Include="[&lt;assembly: AssemblyFileVersion(&quot;$(FileVersion)&quot;)&gt;]" />
+      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" Include="[&lt;assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)&gt;]" />
+      <_AssemblyInfoLines Include="do ()" />
+    </ItemGroup>
+
+    <WriteLinesToFile
+      File="$(_GeneratedAssemblyInfoFile)"
+      Overwrite="true"
+      Lines="@(_AssemblyInfoLines)" />
   </Target>
 
 </Project>

@@ -7,7 +7,7 @@
 - Sets `Version`, `AssemblyVersion`, `FileVersion`, and `InformationalVersion`
 - Supports CI overrides via MSBuild props:
   - `BaseVersion`, `BuildMetadata`, `BuildIdentifier`
-- Auto-imports `.props` and `.targets` files (no manual imports)
+- Auto-imports `.targets` files (no manual imports)
 - Logs version info during build (optional)
 
 ## 📦 Usage

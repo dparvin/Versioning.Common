@@ -62,9 +62,7 @@ InformationalVersion    2.0.0-beta1
 
 ## 🛠 How It Works
 
-The .props file runs early to initialize version variables.
-
-The .targets file finalizes the version and writes to the build log.
+The .targets file sets the versions, and generates the AssemblyInfo file, and then writes to the build log.
 
 Local builds use BaseVersion; CI builds can override via CLI.
 
@@ -77,7 +75,7 @@ Local builds use BaseVersion; CI builds can override via CLI.
 
 Each of these variables can be set in your project file, and/or supplied by your automated build process.  You can make them work one way in Visual Studio and another in your automated build.
 
-If you are setting versions in your AssemblyInfo file, then you will want to remove those so that the build process will use this process instead.
+If you are setting versions in your AssemblyInfo file, then you will want to remove those so that the build process will use this process instead.  If they are not removed, you will get compiler errors from your AssemblyInfo file.
 
 ### 💡 Example Build Output
 
@@ -96,6 +94,8 @@ If you are setting versions in your AssemblyInfo file, then you will want to rem
 ### ✅ Compatibility
 
 - .NET SDK-style projects (all frameworks)
+
+- Works with C#, VB.NET and F# projects
 
 - Compatible with MSBuild 16.0+
 
