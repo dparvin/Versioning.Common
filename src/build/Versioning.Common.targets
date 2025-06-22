@@ -68,7 +68,8 @@
       <_AssemblyInfoLines Include="using System.Reflection;" />
       <_AssemblyInfoLines Include="[assembly: AssemblyVersion(&quot;$(AssemblyVersion)&quot;)]" />
       <_AssemblyInfoLines Include="[assembly: AssemblyFileVersion(&quot;$(FileVersion)&quot;)]" />
-      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" Include="[assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)]" />
+      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" 
+                          Include="[assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)]" />
     </ItemGroup>
 
     <!-- VB.NET Lines -->
@@ -76,16 +77,22 @@
       <_AssemblyInfoLines Include="Imports System.Reflection" />
       <_AssemblyInfoLines Include="&lt;Assembly: AssemblyVersion(&quot;$(AssemblyVersion)&quot;)&gt;" />
       <_AssemblyInfoLines Include="&lt;Assembly: AssemblyFileVersion(&quot;$(FileVersion)&quot;)&gt;" />
-      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" Include="&lt;Assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)&gt;" />
+      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" 
+                          Include="&lt;Assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)&gt;" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(Language)' == 'F#'">
       <_AssemblyInfoLines Include="open System.Reflection" />
       <_AssemblyInfoLines Include="[&lt;assembly: AssemblyVersion(&quot;$(AssemblyVersion)&quot;)&gt;]" />
       <_AssemblyInfoLines Include="[&lt;assembly: AssemblyFileVersion(&quot;$(FileVersion)&quot;)&gt;]" />
-      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" Include="[&lt;assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)&gt;]" />
+      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" 
+                          Include="[&lt;assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)&gt;]" />
       <_AssemblyInfoLines Include="do ()" />
     </ItemGroup>
+
+    <Message Importance="High" 
+             Condition="'$(LogVersionInfo)' == 'true'"
+             Text="📄 Generating assembly version file: $(_GeneratedAssemblyInfoFile)" />
 
     <WriteLinesToFile
       File="$(_GeneratedAssemblyInfoFile)"
