@@ -36,4 +36,4 @@ jobs:
         run: nuget pack VersioningPackage.nuspec -OutputDirectory ../out -Version "${{ env.VERSION }}"
 
       - name: Push to NuGet
-        run: nuget push "out/*.nupkg" -Api-Key ${{ secrets.NUGET_API_KEY }} -Source https://api.nuget.org/v3/index.json -Skip-Duplicate -Verbosity Detailed
+        run: nuget push "out/*.nupkg" -ApiKey ${{ secrets.NUGET_API_KEY }} -Source https://api.nuget.org/v3/index.json -Skip-Duplicate -Verbosity Detailed
