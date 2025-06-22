@@ -62,5 +62,6 @@ To silence logging in local builds:
 
 - Works with SDK-style projects
 - Remove [assembly: AssemblyVersion(...)] etc. if present in AssemblyInfo.cs
+- Works with VB.NET, C# and F# projects
 - Use BuildMetadata for prerelease labels (e.g., alpha, rc.1)
 - Use BuildIdentifier for commit hashes or CI run IDs

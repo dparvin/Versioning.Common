@@ -36,6 +36,7 @@
 
   <PropertyGroup>
     <LogVersionInfo Condition="'$(LogVersionInfo)' == ''">true</LogVersionInfo>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <!-- Log version info after MSBuild has processed all imported properties -->
