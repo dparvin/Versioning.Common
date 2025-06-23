@@ -39,6 +39,13 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <CoreCompileDependsOn>
+      GenerateAssemblyInfo;
+      $(CoreCompileDependsOn)
+    </CoreCompileDependsOn>
+  </PropertyGroup>
+
   <!-- Log version info after MSBuild has processed all imported properties -->
   <Target Name="LogSelectedVersion" AfterTargets="PrepareForBuild" Condition="'$(LogVersionInfo)' == 'true'">
     <Message Importance="High" Text="================== Versioning Info ==================" />
@@ -50,14 +57,7 @@
     <Message Importance="High" Text="  ➤ Version (NuGet): $(Version)" />
     <Message Importance="High" Text="  ➤ InformationalVersion: $(InformationalVersion)" />
     <Message Importance="High" Text="=====================================================" />
-  </Target>
-
-  <PropertyGroup>
-    <CoreCompileDependsOn>
-      GenerateAssemblyInfo;
-      $(CoreCompileDependsOn)
-    </CoreCompileDependsOn>
-  </PropertyGroup>
+  </Target>  
 
   <Target Name="GenerateAssemblyInfo">
     <PropertyGroup>
@@ -65,10 +65,6 @@
       <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'VB'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.vb</_GeneratedAssemblyInfoFile>
       <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'F#'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.fs</_GeneratedAssemblyInfoFile>
     </PropertyGroup>
-
-    <ItemGroup>
-      <Compile Include="$(_GeneratedAssemblyInfoFile)" />
-    </ItemGroup>
 
     <!-- C# Lines -->
     <ItemGroup Condition="'$(Language)' == 'C#'">
@@ -87,7 +83,7 @@
       <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" 
                           Include="&lt;Assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)&gt;" />
     </ItemGroup>
-
+                        
     <ItemGroup Condition="'$(Language)' == 'F#'">
       <_AssemblyInfoLines Include="open System.Reflection" />
       <_AssemblyInfoLines Include="[&lt;assembly: AssemblyVersion(&quot;$(AssemblyVersion)&quot;)&gt;]" />
@@ -96,15 +92,19 @@
                           Include="[&lt;assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)&gt;]" />
       <_AssemblyInfoLines Include="do ()" />
     </ItemGroup>
-
+                        
     <Message Importance="High" 
              Condition="'$(LogVersionInfo)' == 'true'"
              Text="📄 Generating assembly version file: $(_GeneratedAssemblyInfoFile)" />
-
+                        
     <WriteLinesToFile
       File="$(_GeneratedAssemblyInfoFile)"
       Overwrite="true"
       Lines="@(_AssemblyInfoLines)" />
+    
+    <ItemGroup>
+      <Compile Include="$(_GeneratedAssemblyInfoFile)" />
+    </ItemGroup>
   </Target>
 
 </Project>
