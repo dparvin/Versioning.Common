@@ -39,12 +39,6 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <CoreCompileDependsOn>
-      $(CoreCompileDependsOn);GenerateAssemblyInfo
-    </CoreCompileDependsOn>
-  </PropertyGroup>
-
   <!-- Log version info after MSBuild has processed all imported properties -->
   <Target Name="LogSelectedVersion" AfterTargets="PrepareForBuild" Condition="'$(LogVersionInfo)' == 'true'">
     <Message Importance="High" Text="================== Versioning Info ==================" />
@@ -58,9 +52,7 @@
     <Message Importance="High" Text="=====================================================" />
   </Target>  
 
-  <Target Name="GenerateAssemblyInfo"
-          Inputs="$(MSBuildProjectFullPath)"
-          Outputs="$(_GeneratedAssemblyInfoFile)">
+  <Target Name="GenerateAssemblyInfo" BeforeTargets="CoreCompile">
 
     <Message Importance="High" Text="🚧 Entering GenerateAssemblyInfo target" />
 
