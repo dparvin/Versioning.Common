@@ -41,8 +41,7 @@
 
   <PropertyGroup>
     <CoreCompileDependsOn>
-      GenerateAssemblyInfo;
-      $(CoreCompileDependsOn)
+      $(CoreCompileDependsOn);GenerateAssemblyInfo
     </CoreCompileDependsOn>
   </PropertyGroup>
 
@@ -50,8 +49,8 @@
   <Target Name="LogSelectedVersion" AfterTargets="PrepareForBuild" Condition="'$(LogVersionInfo)' == 'true'">
     <Message Importance="High" Text="================== Versioning Info ==================" />
     <Message Importance="High" Text="  ➤ BaseVersion: $(BaseVersion)" />
-    <Message Condition="'$(BuildMetadata)' != ''" Importance="High" Text="  ➤ BuildMetadata: $(BuildMetadata)" />
-    <Message Condition="'$(BuildIdentifier)' != ''" Importance="High" Text="  ➤ BuildIdentifier: $(BuildIdentifier)" />
+    <Message Importance="High" Text="  ➤ BuildMetadata: $(BuildMetadata)" Condition="'$(BuildMetadata)' != ''" />
+    <Message Importance="High" Text="  ➤ BuildIdentifier: $(BuildIdentifier)" Condition="'$(BuildIdentifier)' != ''" />
     <Message Importance="High" Text="  ➤ AssemblyVersion: $(AssemblyVersion)" />
     <Message Importance="High" Text="  ➤ FileVersion: $(FileVersion)" />
     <Message Importance="High" Text="  ➤ Version (NuGet): $(Version)" />
@@ -59,7 +58,12 @@
     <Message Importance="High" Text="=====================================================" />
   </Target>  
 
-  <Target Name="GenerateAssemblyInfo">
+  <Target Name="GenerateAssemblyInfo"
+          Inputs="$(MSBuildProjectFullPath)"
+          Outputs="$(_GeneratedAssemblyInfoFile)">
+
+    <Message Importance="High" Text="🚧 Entering GenerateAssemblyInfo target" />
+
     <PropertyGroup>
       <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'C#'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.cs</_GeneratedAssemblyInfoFile>
       <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'VB'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.vb</_GeneratedAssemblyInfoFile>
@@ -106,5 +110,4 @@
       <Compile Include="$(_GeneratedAssemblyInfoFile)" />
     </ItemGroup>
   </Target>
-
 </Project>
