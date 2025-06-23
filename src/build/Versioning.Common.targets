@@ -40,7 +40,7 @@
   </PropertyGroup>
 
   <!-- Log version info after MSBuild has processed all imported properties -->
-  <Target Name="LogSelectedVersion" AfterTargets="PrepareForBuild" Condition="'$(LogVersionInfo)' == 'true'">
+  <Target Name="Versioning.Common.LogSelectedVersion" AfterTargets="PrepareForBuild" Condition="'$(LogVersionInfo)' == 'true'">
     <Message Importance="High" Text="================== Versioning Info ==================" />
     <Message Importance="High" Text="  ➤ BaseVersion: $(BaseVersion)" />
     <Message Importance="High" Text="  ➤ BuildMetadata: $(BuildMetadata)" Condition="'$(BuildMetadata)' != ''" />
@@ -50,11 +50,7 @@
     <Message Importance="High" Text="  ➤ Version (NuGet): $(Version)" />
     <Message Importance="High" Text="  ➤ InformationalVersion: $(InformationalVersion)" />
     <Message Importance="High" Text="=====================================================" />
-  </Target>  
 
-  <Target Name="GenerateAssemblyInfo" BeforeTargets="BeforeCompile">
-
-    <Message Importance="High" Text="🚧 Entering GenerateAssemblyInfo target" />
     <Message Importance="High" Text="🎯 TFM: $(TargetFramework) | Lang: $(Language)" />
 
     <PropertyGroup>
