@@ -97,8 +97,7 @@
       File="$(_GeneratedAssemblyInfoFile)"
       Overwrite="true"
       Lines="@(_AssemblyInfoLines)" 
-      Encoding="UTF-8"
-      NewLine="$(MSBuildNewLine)" />
+      Encoding="UTF-8" />
     
     <ItemGroup>
       <Compile Include="$(_GeneratedAssemblyInfoFile)" />
