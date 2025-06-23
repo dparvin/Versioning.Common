@@ -52,9 +52,10 @@
     <Message Importance="High" Text="=====================================================" />
   </Target>  
 
-  <Target Name="GenerateAssemblyInfo" BeforeTargets="CoreCompile">
+  <Target Name="GenerateAssemblyInfo" BeforeTargets="BeforeCompile">
 
     <Message Importance="High" Text="🚧 Entering GenerateAssemblyInfo target" />
+    <Message Importance="High" Text="🎯 TFM: $(TargetFramework) | Lang: $(Language)" />
 
     <PropertyGroup>
       <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'C#'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.cs</_GeneratedAssemblyInfoFile>
