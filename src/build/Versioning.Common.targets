@@ -2,104 +2,222 @@
 
   <!-- Ensure BaseVersion is set -->
   <PropertyGroup Condition="'$(BaseVersion)' == ''">
-    <BaseVersion>0.1.0</BaseVersion> <!-- Fallback default -->
+    <BaseVersion>0.1.0</BaseVersion>
+    <!-- Fallback default -->
   </PropertyGroup>
-  
+
   <!-- Set BuildMetadata if not already defined -->
   <PropertyGroup Condition="'$(BuildMetadata)' == ''">
     <BuildMetadata></BuildMetadata>
   </PropertyGroup>
-  
+
   <!-- Set BuildIdentifier if not already defined -->
   <PropertyGroup Condition="'$(BuildIdentifier)' == ''">
     <BuildIdentifier></BuildIdentifier>
   </PropertyGroup>
-  
+
+  <!-- Set VersionRevision if not already defined -->
+  <PropertyGroup>
+    <VersionRevision Condition="'$(VersionRevision)' == ''">0</VersionRevision>
+  </PropertyGroup>
+
   <!-- Assembly and File version = fixed numeric version -->
   <PropertyGroup>
-    <AssemblyVersion>$(BaseVersion).0</AssemblyVersion>
-    <FileVersion>$(BaseVersion).0</FileVersion>
+    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">$(BaseVersion).$(VersionRevision)</AssemblyVersion>
+    <FileVersion Condition="'$(FileVersion)' == ''">$(AssemblyVersion)</FileVersion>
   </PropertyGroup>
-  
+
   <!-- NuGet version (semver + metadata) -->
   <PropertyGroup Condition="'$(BuildMetadata)' != ''">
     <Version>$(BaseVersion)-$(BuildMetadata)</Version>
-    <InformationalVersion Condition="'$(BuildIdentifier)' != ''">$(BaseVersion)-$(BuildMetadata)+$(BuildIdentifier)</InformationalVersion>
-    <InformationalVersion Condition="'$(BuildIdentifier)' == ''">$(BaseVersion)-$(BuildMetadata)</InformationalVersion>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(BuildMetadata)' == ''">
-    <Version>$(BaseVersion).0</Version>
-    <InformationalVersion Condition="'$(BuildIdentifier)' != ''">$(BaseVersion)+$(BuildIdentifier)</InformationalVersion>
-    <InformationalVersion Condition="'$(BuildIdentifier)' == ''">$(BaseVersion).0</InformationalVersion>
+    <Version>$(AssemblyVersion)</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <LogVersionInfo Condition="'$(LogVersionInfo)' == ''">true</LogVersionInfo>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <!-- Log version info after MSBuild has processed all imported properties -->
-  <Target Name="Versioning-Common-LogSelectedVersion" AfterTargets="PrepareForBuild" Condition="'$(LogVersionInfo)' == 'true'">
-    <Message Importance="High" Text="================== Versioning Info ==================" />
-    <Message Importance="High" Text="  ➤ BaseVersion: $(BaseVersion)" />
-    <Message Importance="High" Text="  ➤ BuildMetadata: $(BuildMetadata)" Condition="'$(BuildMetadata)' != ''" />
-    <Message Importance="High" Text="  ➤ BuildIdentifier: $(BuildIdentifier)" Condition="'$(BuildIdentifier)' != ''" />
-    <Message Importance="High" Text="  ➤ AssemblyVersion: $(AssemblyVersion)" />
-    <Message Importance="High" Text="  ➤ FileVersion: $(FileVersion)" />
-    <Message Importance="High" Text="  ➤ Version (NuGet): $(Version)" />
-    <Message Importance="High" Text="  ➤ InformationalVersion: $(InformationalVersion)" />
-    <Message Importance="High" Text="=====================================================" />
+  <Target Name="SkipAutoBuildIdentifier"
+          BeforeTargets="SetBuildIdentifierFromGit"
+          Condition="'$(BuildIdentifier)' != ''">
+    <Message Importance="Low" Text="BuildIdentifier already set by user: $(BuildIdentifier)" />
+  </Target>
 
-    <Message Importance="High" Text="🎯 TFM: $(TargetFramework) | Lang: $(Language)" />
+  <Target Name="SetBuildIdentifierFromGit"
+          BeforeTargets="SetBuildIdentifierFromTFVC;Versioning-Common-LogSelectedVersion"
+          Condition="'$(BuildIdentifier)' == ''">
 
     <PropertyGroup>
-      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'C#'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.cs</_GeneratedAssemblyInfoFile>
-      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'VB'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.vb</_GeneratedAssemblyInfoFile>
-      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'F#'">$(IntermediateOutputPath)Versioning.Common.GeneratedAssemblyInfo.fs</_GeneratedAssemblyInfoFile>
+      <_GITOutputFile>$(IntermediateOutputPath)git_version.txt</_GITOutputFile>
+    </PropertyGroup>
+
+    <!-- Try to get Git commit SHA, if Git is available -->
+    <Exec Command="git rev-parse --short HEAD > &quot;$(_GITOutputFile)&quot;"
+          IgnoreExitCode="true"
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+
+    <ReadLinesFromFile File="$(_GITOutputFile)">
+      <Output TaskParameter="Lines" PropertyName="GitCommitSha" />
+    </ReadLinesFromFile>
+
+    <!-- Fallback if git fails -->
+    <PropertyGroup>
+      <BuildIdentifier Condition="'$(GitCommitSha)' != '' and '$(BuildIdentifier)' == ''">git-$(GitCommitSha)</BuildIdentifier>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="SetBuildIdentifierFromTFVC"
+          BeforeTargets="SetBuildIdentifierFromSVN;Versioning-Common-LogSelectedVersion"
+          Condition="'$(BuildIdentifier)' == '' AND '$(GitCommitSha)' == ''">
+
+    <PropertyGroup>
+      <_TFVCOutputFile>$(IntermediateOutputPath)tfvc_version.txt</_TFVCOutputFile>
+    </PropertyGroup>
+
+    <Exec Command="tf vc history . /recursive /stopafter:1 /format:detailed > &quot;$(_TFVCOutputFile)&quot;"
+          IgnoreExitCode="true"
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+
+    <ReadLinesFromFile File="$(_TFVCOutputFile)">
+      <Output TaskParameter="Lines" PropertyName="TFVC_History" />
+    </ReadLinesFromFile>
+
+    <!-- Extract the changeset ID (first line usually contains it) -->
+    <PropertyGroup>
+      <TFVC_Changeset Condition="'$(TFVC_History)' != ''">
+        $([System.Text.RegularExpressions.Regex]::Match('$(TFVC_History)', 'Changeset:\s*(\d+)').Groups[1].Value)
+      </TFVC_Changeset>
+      <BuildIdentifier Condition="'$(TFVC_Changeset)' != ''">tfvc-$(TFVC_Changeset)</BuildIdentifier>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="SetBuildIdentifierFromSVN"
+          BeforeTargets="_SetInformationalVersionVariable;Versioning-Common-LogSelectedVersion"
+          Condition="'$(BuildIdentifier)' == '' AND '$(GitCommitSha)' == '' AND '$(TFVC_Changeset)' == ''">
+
+    <PropertyGroup>
+      <_SVNOutputFile>$(IntermediateOutputPath)svn_version.txt</_SVNOutputFile>
+    </PropertyGroup>
+
+    <Exec Command="svn info --show-item revision > &quot;$(_SVNOutputFile)&quot;"
+          IgnoreExitCode="true"
+          WorkingDirectory="$(MSBuildProjectDirectory)">
+    </Exec>
+
+    <ReadLinesFromFile File="$(_SVNOutputFile)">
+      <Output TaskParameter="Lines" PropertyName="SVNRevision" />
+    </ReadLinesFromFile>
+
+    <PropertyGroup>
+      <BuildIdentifier Condition="'$(SVNRevision)' != ''">svn-r$(SVNRevision)</BuildIdentifier>
+      <BuildIdentifier Condition="'$(BuildIdentifier)' == ''">noscm</BuildIdentifier>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="_SetInformationalVersionVariable"
+          BeforeTargets="Versioning-Common-LogSelectedVersion"
+          Condition="'$(InformationalVersion)' == ''">
+
+    <!-- NuGet version (semver + metadata) -->
+    <PropertyGroup Condition="'$(BuildMetadata)' != ''">
+      <InformationalVersion Condition="'$(BuildIdentifier)' != ''">$(BaseVersion)-$(BuildMetadata)+$(BuildIdentifier)</InformationalVersion>
+      <InformationalVersion Condition="'$(BuildIdentifier)' == ''">$(BaseVersion)-$(BuildMetadata)</InformationalVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(BuildMetadata)' == ''">
+      <InformationalVersion Condition="'$(BuildIdentifier)' != ''">$(BaseVersion)+$(BuildIdentifier)</InformationalVersion>
+      <InformationalVersion Condition="'$(BuildIdentifier)' == ''">$(AssemblyVersion)</InformationalVersion>
+    </PropertyGroup>
+
+  </Target>
+
+  <!-- Log version info after MSBuild has processed all imported properties -->
+  <Target Name="Versioning-Common-LogSelectedVersion"
+          AfterTargets="PrepareForBuild"
+          Condition="'$(GenerateAssemblyInfo)' == 'false'">
+
+    <Message Importance="High" Text="================== Versioning Info =================="  Condition="'$(LogVersionInfo)' == 'true'"/>
+    <Message Importance="High" Text="  ➤ BaseVersion: $(BaseVersion)"  Condition="'$(LogVersionInfo)' == 'true'"/>
+    <Message Importance="High" Text="  ➤ VersionRevision: $(VersionRevision)" Condition="'$(VersionRevision)' != '' AND '$(LogVersionInfo)' == 'true'" />
+    <Message Importance="High" Text="  ➤ BuildMetadata: $(BuildMetadata)" Condition="'$(BuildMetadata)' != '' AND '$(LogVersionInfo)' == 'true'" />
+    <Message Importance="High" Text="  ➤ BuildIdentifier: $(BuildIdentifier)" Condition="'$(BuildIdentifier)' != '' AND '$(LogVersionInfo)' == 'true'" />
+    <Message Importance="High" Text="  ➤ AssemblyVersion: $(AssemblyVersion)"  Condition="'$(LogVersionInfo)' == 'true'"/>
+    <Message Importance="High" Text="  ➤ FileVersion: $(FileVersion)"  Condition="'$(LogVersionInfo)' == 'true'"/>
+    <Message Importance="High" Text="  ➤ Version (NuGet): $(Version)"  Condition="'$(LogVersionInfo)' == 'true'"/>
+    <Message Importance="High" Text="  ➤ InformationalVersion: $(InformationalVersion)"  Condition="'$(LogVersionInfo)' == 'true'"/>
+    <Message Importance="High" Text="====================================================="  Condition="'$(LogVersionInfo)' == 'true'"/>
+
+    <Message Importance="High" Text="🎯 TFM: $(TargetFramework) | Lang: $(Language)"  Condition="'$(LogVersionInfo)' == 'true'"/>
+
+    <PropertyGroup>
+      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'C#'">$(IntermediateOutputPath)Versioning_Common_GeneratedAssemblyInfo.cs</_GeneratedAssemblyInfoFile>
+      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'VB'">$(IntermediateOutputPath)Versioning_Common_GeneratedAssemblyInfo.vb</_GeneratedAssemblyInfoFile>
+      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'F#'">$(IntermediateOutputPath)Versioning_Common_GeneratedAssemblyInfo.fs</_GeneratedAssemblyInfoFile>
     </PropertyGroup>
 
     <!-- C# Lines -->
     <ItemGroup Condition="'$(Language)' == 'C#'">
-      <_AssemblyInfoLines Include="// Auto-generated by Versioning.Common (C#)" />
-      <_AssemblyInfoLines Include="using System.Reflection&#59;" />
+      <_AssemblyInfoLines Include="// &lt;auto-generated&gt;" />
+      <_AssemblyInfoLines Include="//     Generated by Versioning.Common (C#)" />
+      <_AssemblyInfoLines Include="// &lt;/auto-generated&gt;" />
+      <_AssemblyInfoLines Include="//" />
+      <_AssemblyInfoLines Include="using System.Reflection%3B" />
+      <!-- Using %3B to escape semicolon in XML -->
       <_AssemblyInfoLines Include="[assembly: AssemblyVersion(&quot;$(AssemblyVersion)&quot;)]" />
       <_AssemblyInfoLines Include="[assembly: AssemblyFileVersion(&quot;$(FileVersion)&quot;)]" />
-      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" 
+      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'"
                           Include="[assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)]" />
+      <_AssemblyInfoLines Include="//" />
+      <_AssemblyInfoLines Include="// Generated on $(MSBuildThisFileFullPath) at $(MSBuildProjectDirectory)" />
     </ItemGroup>
 
     <!-- VB.NET Lines -->
     <ItemGroup Condition="'$(Language)' == 'VB'">
-      <_AssemblyInfoLines Include="// Auto-generated by Versioning.Common (VB.NET)" />
+      <_AssemblyInfoLines Include="' &lt;auto-generated&gt;" />
+      <_AssemblyInfoLines Include="'      Generated by Versioning.Common (VB.NET)" />
+      <_AssemblyInfoLines Include="' &lt;/auto-generated&gt;" />
+      <_AssemblyInfoLines Include="'" />
       <_AssemblyInfoLines Include="Imports System.Reflection" />
       <_AssemblyInfoLines Include="&lt;Assembly: AssemblyVersion(&quot;$(AssemblyVersion)&quot;)&gt;" />
       <_AssemblyInfoLines Include="&lt;Assembly: AssemblyFileVersion(&quot;$(FileVersion)&quot;)&gt;" />
-      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" 
+      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'"
                           Include="&lt;Assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)&gt;" />
+      <_AssemblyInfoLines Include="'" />
+      <_AssemblyInfoLines Include="' Generated on $(MSBuildThisFileFullPath) at $(MSBuildProjectDirectory)" />
     </ItemGroup>
-                        
+
     <ItemGroup Condition="'$(Language)' == 'F#'">
-      <_AssemblyInfoLines Include="// Auto-generated by Versioning.Common (F#)" />
+      <_AssemblyInfoLines Include="// &lt;auto-generated&gt;" />
+      <_AssemblyInfoLines Include="//     Generated by Versioning.Common (F#)" />
+      <_AssemblyInfoLines Include="// &lt;/auto-generated&gt;" />
+      <_AssemblyInfoLines Include="//" />
+      <_AssemblyInfoLines Include="namespace FSharp" />
+      <_AssemblyInfoLines Include="open System" />
       <_AssemblyInfoLines Include="open System.Reflection" />
       <_AssemblyInfoLines Include="[&lt;assembly: AssemblyVersion(&quot;$(AssemblyVersion)&quot;)&gt;]" />
       <_AssemblyInfoLines Include="[&lt;assembly: AssemblyFileVersion(&quot;$(FileVersion)&quot;)&gt;]" />
-      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'" 
+      <_AssemblyInfoLines Condition="'$(TargetFramework)' != 'net35'"
                           Include="[&lt;assembly: AssemblyInformationalVersion(&quot;$(InformationalVersion)&quot;)&gt;]" />
       <_AssemblyInfoLines Include="do ()" />
+      <_AssemblyInfoLines Include="//" />
+      <_AssemblyInfoLines Include="// Generated on $(MSBuildThisFileFullPath) at $(MSBuildProjectDirectory)" />
     </ItemGroup>
-                        
-    <Message Importance="High" 
+
+    <Message Importance="High"
              Condition="'$(LogVersionInfo)' == 'true'"
              Text="📄 Generating assembly version file: $(_GeneratedAssemblyInfoFile)" />
-                        
+
     <WriteLinesToFile
       File="$(_GeneratedAssemblyInfoFile)"
       Overwrite="true"
-      Lines="@(_AssemblyInfoLines)" 
+      Lines="@(_AssemblyInfoLines)"
       Encoding="UTF-8" />
-    
-    <ItemGroup>
+
+    <!-- Add the generated file -->
+    <ItemGroup Condition="'$(Language)' != 'F#'">
       <Compile Include="$(_GeneratedAssemblyInfoFile)" />
     </ItemGroup>
   </Target>

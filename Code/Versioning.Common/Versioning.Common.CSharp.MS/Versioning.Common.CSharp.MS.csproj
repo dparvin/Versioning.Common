@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\SharedFrameworks.props" />
+  <Import Project="..\..\..\src\build\Versioning.Common.props" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <Import Project="..\..\..\src\build\Versioning.Common.targets" />
+</Project>

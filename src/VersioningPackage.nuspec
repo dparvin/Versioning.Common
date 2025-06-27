@@ -15,10 +15,11 @@
     <description>
       Centralized versioning logic for MSBuild-based projects.
     </description>
-    <tags>msbuild versioning build targets</tags>
+    <tags>msbuild versioning build props targets</tags>
   </metadata>
 
   <files>
+    <file src=".\build\Versioning.Common.props" target="build\Versioning.Common.props" />
     <file src=".\build\Versioning.Common.targets" target="build\Versioning.Common.targets" />
     <file src=".\readme.md" target="readme.md" />
     <file src="..\LICENSE" target="LICENSE." />

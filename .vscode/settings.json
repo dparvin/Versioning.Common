@@ -1,7 +1,10 @@
 {
     "cSpell.words": [
         "msbuild",
+        "noscm",
         "pwsh",
-        "shaabc"
+        "shaabc",
+        "stopafter",
+        "TFVC"
     ]
 }
