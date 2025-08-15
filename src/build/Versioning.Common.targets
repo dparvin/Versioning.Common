@@ -46,6 +46,7 @@
     <Message Importance="Low" Text="BuildIdentifier already set by user: $(BuildIdentifier)" />
   </Target>
 
+  <!-- Make the BuildIdentifier from GIT -->
   <Target Name="SetBuildIdentifierFromGit"
           BeforeTargets="SetBuildIdentifierFromTFVC;Versioning-Common-LogSelectedVersion"
           Condition="'$(BuildIdentifier)' == ''">
@@ -65,10 +66,15 @@
 
     <!-- Fallback if git fails -->
     <PropertyGroup>
-      <BuildIdentifier Condition="'$(GitCommitSha)' != '' and '$(BuildIdentifier)' == ''">git-$(GitCommitSha)</BuildIdentifier>
+      <GitCommitSha Condition="'$(GitCommitSha)' != ''">$([System.Text.RegularExpressions.Regex]::Replace('$(GitCommitSha)', '\s+', ''))</GitCommitSha>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <BuildIdentifier Condition="'$(GitCommitSha)' != ''">git-$(GitCommitSha)</BuildIdentifier>
     </PropertyGroup>
   </Target>
 
+  <!-- Make the BuildIdentifier from TFVC (Microsoft DevOps) if it did not  -->
   <Target Name="SetBuildIdentifierFromTFVC"
           BeforeTargets="SetBuildIdentifierFromSVN;Versioning-Common-LogSelectedVersion"
           Condition="'$(BuildIdentifier)' == '' AND '$(GitCommitSha)' == ''">
@@ -87,13 +93,16 @@
 
     <!-- Extract the changeset ID (first line usually contains it) -->
     <PropertyGroup>
-      <TFVC_Changeset Condition="'$(TFVC_History)' != ''">
-        $([System.Text.RegularExpressions.Regex]::Match('$(TFVC_History)', 'Changeset:\s*(\d+)').Groups[1].Value)
-      </TFVC_Changeset>
-      <BuildIdentifier Condition="'$(TFVC_Changeset)' != ''">tfvc-$(TFVC_Changeset)</BuildIdentifier>
+      <TFVC_Changeset Condition="'$(TFVC_History)' != ''">$([System.Text.RegularExpressions.Regex]::Match('$(TFVC_History)', 'Changeset:\s*(\d+)').Groups[1].Value)</TFVC_Changeset>
+
+      <!-- Clean out whitespace just in case -->
+      <TFVC_Changeset>$([System.Text.RegularExpressions.Regex]::Replace('$(TFVC_Changeset)', '\s+', ''))</TFVC_Changeset>
+
+      <BuildIdentifier Condition="'$(TFVC_Changeset)' != ''">tfvc-cs$(TFVC_Changeset)</BuildIdentifier>
     </PropertyGroup>
   </Target>
 
+  <!-- Make the BuildIdentifier from SVN if we did not get it from Git or TFVC -->
   <Target Name="SetBuildIdentifierFromSVN"
           BeforeTargets="_SetInformationalVersionVariable;Versioning-Common-LogSelectedVersion"
           Condition="'$(BuildIdentifier)' == '' AND '$(GitCommitSha)' == '' AND '$(TFVC_Changeset)' == ''">
@@ -110,6 +119,10 @@
     <ReadLinesFromFile File="$(_SVNOutputFile)">
       <Output TaskParameter="Lines" PropertyName="SVNRevision" />
     </ReadLinesFromFile>
+
+    <PropertyGroup>
+      <SVNRevision Condition="'$(SVNRevision)' != ''">$([System.Text.RegularExpressions.Regex]::Replace('$(SVNRevision)', '\s+', ''))</SVNRevision>
+    </PropertyGroup>
 
     <PropertyGroup>
       <BuildIdentifier Condition="'$(SVNRevision)' != ''">svn-r$(SVNRevision)</BuildIdentifier>
