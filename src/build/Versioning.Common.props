@@ -1,9 +1,13 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup>
-      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'C#'">$(IntermediateOutputPath)Versioning_Common_GeneratedAssemblyInfo.cs</_GeneratedAssemblyInfoFile>
-      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'VB'">$(IntermediateOutputPath)Versioning_Common_GeneratedAssemblyInfo.vb</_GeneratedAssemblyInfoFile>
-      <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'F#'">$(IntermediateOutputPath)Versioning_Common_GeneratedAssemblyInfo.fs</_GeneratedAssemblyInfoFile>
-    </PropertyGroup>
+  <PropertyGroup>
+    <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'C#'">$(IntermediateOutputPath)Versioning_Common_GeneratedAssemblyInfo.cs</_GeneratedAssemblyInfoFile>
+    <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'VB'">$(IntermediateOutputPath)Versioning_Common_GeneratedAssemblyInfo.vb</_GeneratedAssemblyInfoFile>
+    <_GeneratedAssemblyInfoFile Condition="'$(Language)' == 'F#'">$(IntermediateOutputPath)Versioning_Common_GeneratedAssemblyInfo.fs</_GeneratedAssemblyInfoFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(UsingMicrosoftNETSdk)' != 'true' and '$(GenerateAssemblyInfo)' == ''">
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
 
   <ItemGroup Condition="'$(Language)' == 'F#' and '$(GenerateAssemblyInfo)' == 'false'">
     <Compile Include="$(_GeneratedAssemblyInfoFile)" />
